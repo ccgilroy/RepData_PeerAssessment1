@@ -12,14 +12,16 @@ Connor Gilroy, 8/16/2015
 
 ## Loading and preprocessing the data
 
-```{r loaddata}
+
+```r
 activity <- read.csv("activity/activity.csv")
 options(scipen = 1, digits = 2)  # two decimals, no scientific notation
 ```
 
 ## What is mean total number of steps taken per day?
 
-```{r mean, warning=FALSE, message=FALSE}
+
+```r
 library(dplyr)
 library(ggplot2)
 
@@ -29,33 +31,43 @@ mean.act <-
   summarise(steps = sum(steps, na.rm=TRUE))
 
 ggplot(mean.act, aes(x=steps)) + geom_histogram()
+```
+
+![plot of chunk mean](figure/mean-1.png) 
+
+```r
 mean <- mean(mean.act$steps)
 median <- median(mean.act$steps)
 ```
 
-The mean number of steps per day is **`r mean`** and the median number of steps per day is **`r median`**.
+The mean number of steps per day is **9354.23** and the median number of steps per day is **10395**.
 
 ## What is the average daily activity pattern?
 
-```{r avgdaily}
+
+```r
 avg.daily <- 
   activity %>%
   group_by(interval) %>%
   summarise(steps = mean(steps, na.rm=TRUE))
 
 ggplot(avg.daily, aes(x=interval, y=steps)) + geom_line()
-
-maxsteps <- filter(avg.daily, steps == max(steps))
-
 ```
 
-On an average day, the 5-minute interval mark at **`r maxsteps$interval` minutes** contains the maximum number of steps. 
+![plot of chunk avgdaily](figure/avgdaily-1.png) 
+
+```r
+maxsteps <- filter(avg.daily, steps == max(steps))
+```
+
+On an average day, the 5-minute interval mark at **835 minutes** contains the maximum number of steps. 
 
 ## Imputing missing values
 
 Strategy: fill in NA values with mean for corresponding 5-minute interval.
 
-```{r missing}
+
+```r
 totalNAs <- length(activity$steps[is.na(activity$steps)])
 
 ## pull out NA values and replace them with values from avg.daily
@@ -78,17 +90,23 @@ totals.act2 <-
   summarise(steps = sum(steps))
 
 ggplot(totals.act2, aes(x=steps)) + geom_histogram()
+```
+
+![plot of chunk missing](figure/missing-1.png) 
+
+```r
 mean2 <- mean(totals.act2$steps)
 median2 <- median(totals.act2$steps)
 ```
 
 The major differences in the histogram are that the middle peak is higher and there are fewer values in the bin near 0.  
 
-With imputed missing values, the mean number of steps per day is **`r mean2`** and the median number of steps per day is **`r median2`**.
+With imputed missing values, the mean number of steps per day is **10766.19** and the median number of steps per day is **10766.19**.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r weekdays}
+
+```r
 ## add column for days of week
 act.week <-
   activity2 %>%
@@ -107,7 +125,8 @@ act.week.mean <-
   summarise(steps = mean(steps))
 
 ggplot(act.week.mean, aes(x=interval, y=steps)) + facet_wrap(~weekday, ncol=1) + geom_line()
-
 ```
+
+![plot of chunk weekdays](figure/weekdays-1.png) 
 
 Weekdays appear to have a much sharper peak in the morning (and, to a lesser extent, the evening), likely corresponding with a typical commute. Weekend steps are more evenly spread out throughout the day.
